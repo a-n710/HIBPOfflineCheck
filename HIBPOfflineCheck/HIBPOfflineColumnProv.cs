@@ -89,65 +89,7 @@ namespace HIBPOfflineCheck
 
         private void GetOnlineStatus()
         {
-            var pwdSha = GetPasswordSHA();
-            var truncatedSha = pwdSha.Substring(0, 5);
-
-            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-
-            var url = "https://api.pwnedpasswords.com/range/" + truncatedSha;
-
-            HttpWebRequest request = (HttpWebRequest) WebRequest.Create(url);
-            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-            request.UserAgent = "KeePass-HIBP-plug/1.0";
-
-            try
-            {
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-                {
-                    if (response.StatusCode != HttpStatusCode.OK)
-                    {
-                        Status = "HIBP API error";
-                        return;
-                    }
-
-                    using (Stream stream = response.GetResponseStream())
-                    using (StreamReader reader = new StreamReader(stream))
-                    {
-                        string responseFromServer = reader.ReadToEnd();
-                        var lines = responseFromServer.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-
-                        Status = PluginOptions.SecureText;
-
-                        foreach (var line in lines)
-                        {
-                            string fullSha = truncatedSha + line;
-                            var compare = string.Compare(pwdSha, fullSha.Substring(0, pwdSha.Length), StringComparison.Ordinal);
-
-                            if (compare == 0)
-                            {
-                                var tokens = line.Split(':');
-                                Status = PluginOptions.InsecureText;
-                                insecureWarning = true;
-
-                                if (PluginOptions.BreachCountDetails)
-                                {
-                                    Status += " (password count: " + tokens[1].Trim() + ")";
-                                }
-
-                                break;
-                            }
-                        }
-
-                        reader.Close();
-                        stream.Close();
-                    }
-                }
-            }
-            catch
-            {
-                Status = "HIBP API error";
-            }
+            Status = "HIBP API error";
         }
 
         private void GetOfflineStatus()

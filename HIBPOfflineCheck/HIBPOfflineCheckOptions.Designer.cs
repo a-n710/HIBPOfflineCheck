@@ -191,6 +191,7 @@
             // radioButtonOnline
             // 
             this.radioButtonOnline.AutoSize = true;
+            this.radioButtonOnline.Enabled = false;
             this.radioButtonOnline.Location = new System.Drawing.Point(222, 19);
             this.radioButtonOnline.Name = "radioButtonOnline";
             this.radioButtonOnline.Size = new System.Drawing.Size(55, 17);
